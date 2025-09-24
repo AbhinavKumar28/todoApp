@@ -1,0 +1,20 @@
+{
+  "compilerOptions": {
+    "jsx": "react",
+    "target": "ES2020",
+    "module": "esnext",
+    "moduleResolution": "node",
+    "rootDir": "./src/",
+    "outDir": "../dist/",
+    "strict": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "forceConsistentCasingInFileNames": true,
+    "skipLibCheck": true,
+    "resolveJsonModule": true,
+    "noImplicitAny": true,
+    "allowJs": true,
+    "typeRoots": ["frontend/src/types", "./node_modules/@types"]
+  },
+  "include": ["./src/"],
+}

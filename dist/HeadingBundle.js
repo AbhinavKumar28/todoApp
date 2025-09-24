@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunkfrontend=self.webpackChunkfrontend||[]).push([[743],{713:(e,n,r)=>{r.r(n),r.d(n,{default:()=>t});var s=r(848);r(540),r(559);const t=function({id:e}){return(0,s.jsx)(s.Fragment,{children:(0,s.jsx)("div",{className:"newNoteHeading",children:(0,s.jsx)("h1",{children:e?e.toUpperCase():null})})})}}}]);
