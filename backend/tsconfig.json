@@ -14,7 +14,7 @@
     "resolveJsonModule": true,
     "noImplicitAny": true,
     "allowJs": true,
-    "typeRoots": ["frontend/src/types", "./node_modules/@types"]
+    "typeRoots": ["./src/types", "./node_modules/@types"]
   },
   "include": ["./src/"],
 }
