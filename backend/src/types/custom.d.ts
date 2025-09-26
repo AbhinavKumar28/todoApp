@@ -1,4 +1,5 @@
 import { ObjectId } from "mongodb";
+import Hapi from "@hapi/hapi";
 export type Session = {
   id: ObjectId;
 };
@@ -19,6 +20,11 @@ export type Todos = {
   _id: ObjectId;
   todonote: string;
 };
+export type TodoOld = {
+  _id: ObjectId;
+  todonote: string;
+  category: string;
+};
 export type User = {
   _id: ObjectId;
   name: string;
@@ -26,6 +32,18 @@ export type User = {
   password: string;
   categories: Category[];
 };
+export type UserOld = {
+  _id: ObjectId;
+  name: string;
+  email: string;
+  password: string;
+};
 export type Validate = {
   isValid: boolean;
 };
+export type TodoResponse = TodoOld[] | Hapi.ResponseObject;
+export type CategoryOld = {
+  _id: ObjectId;
+  category: string;
+};
+export type CategoryResponse = CategoryOld[] | Hapi.ResponseObject;
