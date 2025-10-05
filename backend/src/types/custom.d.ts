@@ -33,15 +33,17 @@ export type User = {
   categories: Category[];
 };
 export type UserOld = {
-  _id: ObjectId;
   name: string;
   email: string;
-  password: string;
+};
+export type Email = {
+  email: string;
 };
 export type Validate = {
   isValid: boolean;
+  credentials: Email;
 };
-export type TodoResponse = TodoOld[] | Hapi.ResponseObject;
+export type TodoResponse = TodoOld | TodoOld[] | Hapi.ResponseObject;
 export type CategoryOld = {
   _id: ObjectId;
   category: string;

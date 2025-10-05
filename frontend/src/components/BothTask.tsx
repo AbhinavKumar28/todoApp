@@ -9,12 +9,20 @@ function BothTasks({ categories, setCategories, tasks, setTasks }: ComponentProp
   const removeTask = async (i: string): Promise<void> => {
     const removedTask: Task[] = tasks.filter((task: Task): boolean => task._id !== i);
     setTasks(removedTask);
+    const deletedTask: Task[] = tasks.filter((task: Task): boolean => task._id === i);
+    const currentCategory = deletedTask[0]?.category;
     try {
-      const response = await fetch(`http://localhost:3005/todos/${i}`, {
-        method: "DELETE",
-      });
-      const data = await response.text();
-      console.log("hello", data);
+      const a = localStorage.getItem("currentUser") ? localStorage.getItem("currentUser") : null;
+      if (typeof a === "string") {
+        const response = await fetch(`http://localhost:3005/todos/${i}/${currentCategory}`, {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem(a)}`,
+          },
+        });
+        const data = await response.text();
+        console.log("hello", data);
+      }
     } catch (err) {
       console.error("Error:", err);
     }
@@ -33,6 +41,7 @@ function BothTasks({ categories, setCategories, tasks, setTasks }: ComponentProp
                 tasks={tasks}
                 setTasks={setTasks}
                 index={td._id}
+                category={td.category}
               />
               <img
                 className="trashIcon"

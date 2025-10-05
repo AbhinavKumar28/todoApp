@@ -14,16 +14,20 @@ function HomePage({ categories, setCategories, tasks, setTasks }: ComponentProps
   const addCategory = async (): Promise<void> => {
     let data: Category = {} as Category;
     try {
-      const response = await fetch("http://localhost:3005/categoriesInsert", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ category: currentCategory.toLowerCase() }),
-      });
-      console.log(response);
-      data = (await response.json()) as Category;
-      console.log("hello", data);
+      const a = localStorage.getItem("currentUser") ? localStorage.getItem("currentUser") : null;
+      if (typeof a === "string") {
+        const response = await fetch("http://localhost:3005/categoriesInsert", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem(a)}`,
+          },
+          body: JSON.stringify({ category: currentCategory.toLowerCase() }),
+        });
+        console.log(response);
+        data = (await response.json()) as Category;
+        console.log("hello", data);
+      }
     } catch (err) {
       console.error("Error:", err);
     }

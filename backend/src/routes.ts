@@ -46,6 +46,7 @@ export const routes = [
     method: "POST" as RouteDefMethods,
     path: "/categoriesInsert",
     options: {
+      auth: "jwt2",
       validate: {
         payload: Joi.object({
           category: Joi.string().required(),
@@ -85,6 +86,7 @@ export const routes = [
     method: "POST" as RouteDefMethods,
     path: "/todosInsert",
     options: {
+      auth: "jwt2",
       validate: {
         payload: Joi.object({
           todonote: Joi.string().required(),
@@ -96,8 +98,9 @@ export const routes = [
   },
   {
     method: "PUT" as RouteDefMethods,
-    path: "/todos/{objid}",
+    path: "/todos/{objid}/{category}",
     options: {
+      auth: "jwt2",
       validate: {
         payload: Joi.object({
           todonote: Joi.string().required(),
@@ -105,6 +108,7 @@ export const routes = [
         }),
         params: Joi.object({
           objid: Joi.string().required(),
+          category: Joi.string().required(),
         }),
       },
     },
@@ -112,11 +116,13 @@ export const routes = [
   },
   {
     method: "DELETE" as RouteDefMethods,
-    path: "/todos/{objid}",
+    path: "/todos/{objid}/{category}",
     options: {
+      auth: "jwt2",
       validate: {
         params: Joi.object({
           objid: Joi.string().required(),
+          category: Joi.string().required(),
         }),
       },
     },

@@ -326,9 +326,9 @@ const validate = async function (decoded: Decode, request: Hapi.Request): Promis
     .find({ email: decoded.email })
     .toArray();
   if (founduserinfo.length === 0) {
-    return { isValid: false };
+    return { isValid: false, credentials: { email: "" } };
   } else {
-    return { isValid: true };
+    return { isValid: true, credentials: { email: decoded.email } };
   }
 };
 init().then(

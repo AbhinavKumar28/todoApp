@@ -44,6 +44,15 @@ function Login({ categories, setCategories, tasks, setTasks }: ComponentProps): 
           // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
           let data_1 = await response.json();
           console.log("hello", data_1);
+          const signupSuccessElement = document.getElementById("signupSuccess")
+            ? document.getElementById("signupSuccess")
+            : null;
+          if (signupSuccessElement instanceof HTMLInputElement) {
+            signupSuccessElement.style.display = "block";
+            setTimeout(function () {
+              signupSuccessElement.style.display = "none";
+            }, 15000);
+          }
         } catch (err) {
           console.error("Error:", err);
         }
@@ -111,7 +120,11 @@ function Login({ categories, setCategories, tasks, setTasks }: ComponentProps): 
       <button className="addButton" onClick={handleSignup}>
         Sign Up
       </button>
-
+      <div>
+        <p id="signupSuccess" style={{ display: "none" }}>
+          Signup Successful
+        </p>
+      </div>
       <div className="newNoteHeading">
         <h1>Login</h1>
       </div>

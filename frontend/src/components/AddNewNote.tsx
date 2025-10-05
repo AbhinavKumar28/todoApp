@@ -26,15 +26,19 @@ function AddNewNote({ categories, tasks, setTasks, id }: AddNewNodeProps): JSX.E
   const addTask = async (): Promise<void> => {
     let data: Task = {} as Task;
     try {
-      const response = await fetch("http://localhost:3005/todosInsert", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ todonote: currentTask, category: selectedCategory }),
-      });
-      data = (await response.json()) as Task;
-      console.log("hello", data);
+      const a = localStorage.getItem("currentUser") ? localStorage.getItem("currentUser") : null;
+      if (typeof a === "string") {
+        const response = await fetch("http://localhost:3005/todosInsert", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem(a)}`,
+          },
+          body: JSON.stringify({ todonote: currentTask, category: selectedCategory }),
+        });
+        data = (await response.json()) as Task;
+        console.log("hello", data);
+      }
     } catch (err) {
       console.error("Error:", err);
     }

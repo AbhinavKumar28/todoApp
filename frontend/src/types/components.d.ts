@@ -31,6 +31,7 @@ export type EditIconProps = {
   tasks: Task[];
   setTasks: React.Dispatch<React.SetStateAction<Task[]>>;
   index: string;
+  category: string;
 };
 export type ComponentProps = {
   categories: Category[];
@@ -54,4 +55,7 @@ export type AddNewNodeWithCategoriesProps = {
 export type Obj = {
   token: string;
   username: Username;
+};
+export type ResponseCategory = {
+  category: string;
 };

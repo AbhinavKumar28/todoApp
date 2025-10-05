@@ -14,6 +14,7 @@ function EditIcon({
   tasks,
   setTasks,
   index,
+  category,
 }: EditIconProps): JSX.Element {
   const foundTask = tasks.find((item) => item._id === index);
   const [currentTask, setCurrentTask] = useState<string>(foundTask ? foundTask.todonote : "");
@@ -40,15 +41,19 @@ function EditIcon({
   };
   const editTask = async (): Promise<void> => {
     try {
-      const response = await fetch(`http://localhost:3005/todos/${index}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ todonote: currentTask, category: currentCategory.toLowerCase() }),
-      });
-      const data = await response.text();
-      console.log("hello", data);
+      const a = localStorage.getItem("currentUser") ? localStorage.getItem("currentUser") : null;
+      if (typeof a === "string") {
+        const response = await fetch(`http://localhost:3005/todos/${index}/${category}`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem(a)}`,
+          },
+          body: JSON.stringify({ todonote: currentTask, category: currentCategory.toLowerCase() }),
+        });
+        const data = await response.text();
+        console.log("hello", data);
+      }
     } catch (err) {
       console.error("Error:", err);
     }

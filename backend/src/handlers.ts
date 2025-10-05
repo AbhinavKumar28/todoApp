@@ -1,3 +1,7 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+/* eslint-disable @typescript-eslint/no-unsafe-call */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import Path from "path";
 import Hapi from "@hapi/hapi";
 import bcrypt from "bcrypt";
@@ -7,12 +11,12 @@ import { ObjectId } from "mongodb";
 import * as Boom from "@hapi/boom";
 import { fileURLToPath } from "url";
 import type {
-  CategoryOld,
   CategoryResponse,
   Decode,
   SignupType,
   TodoOld,
   TodoResponse,
+  Todos,
   User,
   UserOld,
 } from "./types/custom.d.ts";
@@ -34,11 +38,29 @@ export const handlerFunctions = {
 
   allTodosFetch: async (request: Hapi.Request, h: Hapi.ResponseToolkit): Promise<TodoResponse> => {
     try {
-      const todos = (await request.mongo.db
-        .collection("todoapp")
-        .find({})
-        .toArray()) as TodoResponse;
-      return todos;
+      const doc = await request.mongo.db.collection("users").findOne(
+        {
+          email: request.auth.credentials.email,
+        },
+        { projection: { "categories.todos": 1, "categories.category": 1 } }
+      );
+      if (doc !== null) {
+        let newTodosMain: TodoOld[] = [];
+        for (const i of doc.categories) {
+          const todos = i.todos;
+          console.log(todos);
+
+          const newTodos = todos.map((td: Todos): TodoOld => {
+            return { ...td, category: i.category };
+          });
+
+          newTodosMain = [...newTodosMain, ...newTodos];
+        }
+
+        return newTodosMain;
+      } else {
+        return h.response("No document matching credentials found");
+      }
     } catch (err) {
       console.error(err);
       return h.response("Error fetching todos").code(500);
@@ -50,12 +72,28 @@ export const handlerFunctions = {
   ): Promise<TodoResponse> => {
     try {
       const { categories } = request.params;
-      const todos = (await request.mongo.db
-        .collection("todoapp")
-        .find({ category: categories })
-        .toArray()) as TodoResponse;
-      console.log(todos);
-      return todos;
+
+      const doc = await request.mongo.db.collection("users").findOne(
+        {
+          email: request.auth.credentials.email,
+
+          "categories.category": categories,
+        },
+        { projection: { "categories.$": 1 } }
+      );
+
+      if (doc !== null) {
+        const todos = doc.categories[0].todos;
+        console.log(todos);
+
+        const newTodos = todos.map((td: Todos): TodoOld => {
+          return { ...td, category: categories };
+        });
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+        return newTodos;
+      } else {
+        return h.response("No document matching credentials found");
+      }
     } catch (err) {
       console.error(err);
       return h.response("Error fetching todos").code(500);
@@ -66,25 +104,55 @@ export const handlerFunctions = {
     h: Hapi.ResponseToolkit
   ): Promise<CategoryResponse> => {
     try {
-      const categories = (await request.mongo.db
-        .collection("category")
-        .find({})
-        .toArray()) as CategoryResponse;
-      console.log(categories);
-      return categories;
+      const doc = await request.mongo.db.collection("users").findOne(
+        {
+          email: request.auth.credentials.email,
+        },
+        { projection: { "categories.category": 1, "categories._id": 1 } }
+      );
+      if (doc !== null) {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+        return doc.categories;
+      } else {
+        return h.response("No document matching credentials found");
+      }
     } catch (err) {
       console.error(err);
       return h.response("Error fetching todos").code(500);
     }
   },
-  categoryInsert: async (request: Hapi.Request): Promise<CategoryOld> => {
+  categoryInsert: async (
+    request: Hapi.Request,
+    h: Hapi.ResponseToolkit
+  ): Promise<CategoryResponse> => {
     const payload = request.payload as { category: string };
-    const status = await request.mongo.db.collection("category").insertOne(payload);
-    console.log("Inserted:", status.insertedId);
-    return {
-      _id: status.insertedId,
-      category: payload.category,
-    };
+
+    const userCollection = request.mongo.db.collection("users") as any;
+    try {
+      await userCollection.updateOne(
+        { email: request.auth.credentials.email },
+        {
+          $push: { categories: { _id: new ObjectId(), category: payload.category } },
+        }
+      );
+      const doc = await request.mongo.db.collection("users").findOne(
+        {
+          email: request.auth.credentials.email,
+          "categories.category": payload.category,
+        },
+        { projection: { "categories.$": 1 } }
+      );
+
+      if (doc !== null) {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+        return doc.categories[0];
+      } else {
+        return h.response("No document matching credentials found");
+      }
+    } catch (err) {
+      console.error(err);
+      return h.response("Error fetching todos").code(500);
+    }
   },
   signup: (request: Hapi.Request): UserOld => {
     const payload = request.payload as {
@@ -105,10 +173,8 @@ export const handlerFunctions = {
       console.log("Inserted:", status.insertedId);
     });
     return {
-      _id: status.insertedId,
       name: payload.name,
       email: payload.email,
-      password: payload.password,
     };
   },
   // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
@@ -143,30 +209,89 @@ export const handlerFunctions = {
       return h.response("Error fetching todos").code(500);
     }
   },
-  todosInsert: async (request: Hapi.Request): Promise<TodoOld> => {
+  todosInsert: async (request: Hapi.Request, h: Hapi.ResponseToolkit): Promise<TodoResponse> => {
     const payload = request.payload as { todonote: string; category: string };
-    const status = await request.mongo.db.collection("todoapp").insertOne(payload);
-    console.log("Inserted:", status.insertedId);
-    return {
-      _id: status.insertedId,
-      todonote: payload.todonote,
-      category: payload.category,
-    };
+    const newTodo = { _id: new ObjectId(), todonote: payload.todonote };
+    try {
+      await (request.mongo.db.collection("users") as any).updateOne(
+        { email: request.auth.credentials.email, "categories.category": payload.category },
+        {
+          $push: {
+            "categories.$.todos": newTodo,
+          },
+        }
+      );
+      const doc = await request.mongo.db.collection("users").findOne({
+        email: request.auth.credentials.email,
+        "categories.category": payload.category,
+        "categories.todos._id": newTodo._id,
+      });
+
+      if (doc !== null) {
+        let insertId = doc.categories.category.filter((n: any) => n.category === payload.category);
+
+        let ab = insertId[0].todos.filter((n: any) => n._id === newTodo._id);
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+        return { ...ab[0], category: payload.category };
+      } else {
+        return h.response("No document matching credentials found");
+      }
+    } catch (err) {
+      console.error(err);
+      return h.response("Error fetching todos").code(500);
+    }
   },
-  todosEdit: async (request: Hapi.Request): Promise<number> => {
-    const { objid } = request.params;
+  todosEdit: async (request: Hapi.Request, h: Hapi.ResponseToolkit): Promise<TodoResponse> => {
+    // const { objid } = request.params;
+    // const id = new ObjectId(String(objid));
+    const { objid, category } = request.params;
     const id = new ObjectId(String(objid));
+    await (request.mongo.db.collection("users") as any).updateOne(
+      { email: request.auth.credentials.email, "categories.category": category },
+      { $pull: { "categories.$[outer].todos": { _id: id } } },
+      { arrayFilters: [{ "outer.category": category }] }
+    );
     const payload = request.payload as { todonote: string; category: string };
-    const status = await request.mongo.db
-      .collection("todoapp")
-      .updateOne({ _id: id }, { $set: payload });
-    return status.matchedCount;
+    const newTodo = { _id: new ObjectId(), todonote: payload.todonote };
+    try {
+      await (request.mongo.db.collection("users") as any).updateOne(
+        { email: request.auth.credentials.email, "categories.category": payload.category },
+        {
+          $push: {
+            "categories.$.todos": newTodo,
+          },
+        }
+      );
+      const doc = await request.mongo.db.collection("users").findOne({
+        email: request.auth.credentials.email,
+        "categories.category": payload.category,
+        "categories.todos._id": newTodo._id,
+      });
+
+      if (doc !== null) {
+        let insertId = doc.categories.category.filter((n: any) => n.category === payload.category);
+
+        let ab = insertId[0].todos.filter((n: any) => n._id === newTodo._id);
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+        return { ...ab[0], category: payload.category };
+      } else {
+        return h.response("No document matching credentials found");
+      }
+    } catch (err) {
+      console.error(err);
+      return h.response("Error fetching todos").code(500);
+    }
   },
   todosDelete: async (request: Hapi.Request): Promise<number> => {
-    const { objid } = request.params;
+    const { objid, category } = request.params;
     const id = new ObjectId(String(objid));
-    // const payload = request.payload;
-    const status = await request.mongo.db.collection("todoapp").deleteOne({ _id: id });
-    return status.deletedCount;
+
+    const status = await (request.mongo.db.collection("users") as any).updateOne(
+      { email: request.auth.credentials.email, "categories.category": category },
+      { $pull: { "categories.$[outer].todos": { _id: id } } },
+      { arrayFilters: [{ "outer.category": category }] }
+    );
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+    return status.modifiedCount;
   },
 };
