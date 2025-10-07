@@ -10,7 +10,6 @@ import { dirname } from "path";
 import { ObjectId } from "mongodb";
 import * as Boom from "@hapi/boom";
 import { fileURLToPath } from "url";
-import { modelFunc } from "./models.ts";
 import type {
   CategoryResponse,
   Decode,
@@ -21,6 +20,7 @@ import type {
   User,
   UserOld,
 } from "./types/custom.d.ts";
+import { findOne, insertOne, updateOne } from "./models.ts";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 export const handlerFunctionsServices = {
@@ -41,9 +41,8 @@ export const handlerFunctionsServices = {
     request: Hapi.Request,
     h: Hapi.ResponseToolkit
   ): Promise<TodoResponse> => {
-    const doc = await modelFunc(
+    const doc = await findOne(
       request,
-      "findOne",
       {
         email: request.auth.credentials.email,
       },
@@ -72,9 +71,8 @@ export const handlerFunctionsServices = {
     h: Hapi.ResponseToolkit
   ): Promise<TodoResponse> => {
     const { categories } = request.params;
-    const doc = await modelFunc(
+    const doc = await findOne(
       request,
-      "findOne",
       {
         email: request.auth.credentials.email,
 
@@ -99,9 +97,8 @@ export const handlerFunctionsServices = {
     request: Hapi.Request,
     h: Hapi.ResponseToolkit
   ): Promise<CategoryResponse> => {
-    const doc = await modelFunc(
+    const doc = await findOne(
       request,
-      "findOne",
       {
         email: request.auth.credentials.email,
       },
@@ -119,9 +116,8 @@ export const handlerFunctionsServices = {
     h: Hapi.ResponseToolkit
   ): Promise<CategoryResponse> => {
     const payload = request.payload as { category: string };
-    await modelFunc(
+    await updateOne(
       request,
-      "updateOne",
       {
         email: request.auth.credentials.email,
       },
@@ -129,9 +125,8 @@ export const handlerFunctionsServices = {
         $push: { categories: { _id: new ObjectId(), category: payload.category } },
       }
     );
-    const doc = await modelFunc(
+    const doc = await findOne(
       request,
-      "findOne",
       {
         email: request.auth.credentials.email,
         "categories.category": payload.category,
@@ -161,7 +156,7 @@ export const handlerFunctionsServices = {
     let status: SignupType = {} as SignupType;
     bcrypt.hash(payload.password, saltRounds, async function (err, hashedPassword) {
       a = { ...payload, password: hashedPassword };
-      status = await modelFunc(request, "insertOne", undefined, undefined, a);
+      status = await insertOne(request, undefined, undefined, a);
       console.log("Inserted:", status.insertedId);
     });
     return {
@@ -179,12 +174,12 @@ export const handlerFunctionsServices = {
     let isValid: boolean = false;
     let token: string = "";
 
-    const founduserinfo: User[] = await modelFunc(request, "find", { email: payload.email });
-    isValid = await bcrypt.compare(payload.password, founduserinfo[0].password);
+    const founduserinfo: User = await findOne(request, { email: payload.email });
+    isValid = await bcrypt.compare(payload.password, founduserinfo.password);
     if (isValid === true) {
       credentials = {
-        name: founduserinfo[0].name,
-        email: founduserinfo[0].email,
+        name: founduserinfo.name,
+        email: founduserinfo.email,
       };
       console.log("login successful", founduserinfo);
       token = jwt.sign(credentials, "JWT_SECRET", { expiresIn: 60 * 5 }); // Token expires in 1 hour
@@ -200,9 +195,8 @@ export const handlerFunctionsServices = {
   ): Promise<TodoResponse> => {
     const payload = request.payload as { todonote: string; category: string };
     const newTodo = { _id: new ObjectId(), todonote: payload.todonote };
-    await modelFunc(
+    await updateOne(
       request,
-      "updateOne",
       { email: request.auth.credentials.email, "categories.category": payload.category },
       {
         $push: {
@@ -210,7 +204,7 @@ export const handlerFunctionsServices = {
         },
       }
     );
-    const doc = await modelFunc(request, "findOne", {
+    const doc = await findOne(request, {
       email: request.auth.credentials.email,
       "categories.category": payload.category,
       "categories.todos._id": newTodo._id,
@@ -233,9 +227,8 @@ export const handlerFunctionsServices = {
     // const id = new ObjectId(String(objid));
     const { objid, category } = request.params;
     const id = new ObjectId(String(objid));
-    await modelFunc(
+    await updateOne(
       request,
-      "updateOne",
       { email: request.auth.credentials.email, "categories.category": category },
       { $pull: { "categories.$[outer].todos": { _id: id } } },
       undefined,
@@ -243,9 +236,8 @@ export const handlerFunctionsServices = {
     );
     const payload = request.payload as { todonote: string; category: string };
     const newTodo = { _id: new ObjectId(), todonote: payload.todonote };
-    await modelFunc(
+    await updateOne(
       request,
-      "updateOne",
       { email: request.auth.credentials.email, "categories.category": payload.category },
       {
         $push: {
@@ -253,13 +245,14 @@ export const handlerFunctionsServices = {
         },
       }
     );
-    const doc = await modelFunc(request, "findOne", {
+    const doc = await findOne(request, {
       email: request.auth.credentials.email,
       "categories.category": payload.category,
       "categories.todos._id": newTodo._id,
     });
     if (doc !== null) {
-      let insertId = doc.categories.category.filter((n: any) => n.category === payload.category);
+      console.log("0", doc);
+      let insertId = doc.categories.filter((n: any) => n.category === payload.category);
 
       let ab = insertId[0].todos.filter((n: any) => n._id === newTodo._id);
       // eslint-disable-next-line @typescript-eslint/no-unsafe-return
@@ -271,9 +264,8 @@ export const handlerFunctionsServices = {
   todosDelete: async (request: Hapi.Request): Promise<number> => {
     const { objid, category } = request.params;
     const id = new ObjectId(String(objid));
-    const status = await modelFunc(
+    const status = await updateOne(
       request,
-      "updateOne",
       { email: request.auth.credentials.email, "categories.category": category },
       { $pull: { "categories.$[outer].todos": { _id: id } } },
       undefined,
