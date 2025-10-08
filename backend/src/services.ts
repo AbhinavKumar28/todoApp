@@ -7,11 +7,12 @@ import Hapi from "@hapi/hapi";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { dirname } from "path";
-import { ObjectId } from "mongodb";
+import { Db, ObjectId } from "mongodb";
 import * as Boom from "@hapi/boom";
 import { fileURLToPath } from "url";
 import type {
   CategoryResponse,
+  CustomRequest,
   Decode,
   SignupType,
   TodoOld,
@@ -20,7 +21,7 @@ import type {
   User,
   UserOld,
 } from "./types/custom.d.ts";
-import { findOne, insertOne, updateOne } from "./models.ts";
+import { findOne, insertOne, updateOne } from "./dbMethods.ts";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 export const handlerFunctionsServices = {
@@ -38,16 +39,18 @@ export const handlerFunctionsServices = {
   },
 
   allTodosFetchServices: async (
-    request: Hapi.Request,
+    request: CustomRequest,
     h: Hapi.ResponseToolkit
   ): Promise<TodoResponse> => {
-    const doc = await findOne(
-      request,
-      {
+    const db: Db = request.mongo.db;
+    const doc = await findOne({
+      db: db,
+      dbCollection: "users",
+      filter: {
         email: request.auth.credentials.email,
       },
-      { projection: { "categories.todos": 1, "categories.category": 1 } }
-    );
+      projections: { projection: { "categories.todos": 1, "categories.category": 1 } },
+    });
     if (doc !== null) {
       let newTodosMain: TodoOld[] = [];
       for (const i of doc.categories) {
@@ -63,23 +66,25 @@ export const handlerFunctionsServices = {
 
       return newTodosMain;
     } else {
-      return h.response("No document matching credentials found");
+      return h.response("Error: No document matching credentials found");
     }
   },
   categoryTodosFetchServices: async (
-    request: Hapi.Request,
+    request: CustomRequest,
     h: Hapi.ResponseToolkit
   ): Promise<TodoResponse> => {
     const { categories } = request.params;
-    const doc = await findOne(
-      request,
-      {
+    const db: Db = request.mongo.db;
+    const doc = await findOne({
+      db: db,
+      dbCollection: "users",
+      filter: {
         email: request.auth.credentials.email,
 
         "categories.category": categories,
       },
-      { projection: { "categories.$": 1 } }
-    );
+      projections: { projection: { "categories.$": 1 } },
+    });
     if (doc !== null) {
       const todos = doc.categories[0].todos;
       console.log(todos);
@@ -94,16 +99,18 @@ export const handlerFunctionsServices = {
     }
   },
   categoryFetchServices: async (
-    request: Hapi.Request,
+    request: CustomRequest,
     h: Hapi.ResponseToolkit
   ): Promise<CategoryResponse> => {
-    const doc = await findOne(
-      request,
-      {
+    const db: Db = request.mongo.db;
+    const doc = await findOne({
+      db: db,
+      dbCollection: "users",
+      filter: {
         email: request.auth.credentials.email,
       },
-      { projection: { "categories.category": 1, "categories._id": 1 } }
-    );
+      projections: { projection: { "categories.category": 1, "categories._id": 1 } },
+    });
     if (doc !== null) {
       // eslint-disable-next-line @typescript-eslint/no-unsafe-return
       return doc.categories;
@@ -112,27 +119,30 @@ export const handlerFunctionsServices = {
     }
   },
   categoryInsertServices: async (
-    request: Hapi.Request,
+    request: CustomRequest,
     h: Hapi.ResponseToolkit
   ): Promise<CategoryResponse> => {
+    const db: Db = request.mongo.db;
     const payload = request.payload as { category: string };
-    await updateOne(
-      request,
-      {
+    await updateOne({
+      db: db,
+      dbCollection: "users",
+      filter: {
         email: request.auth.credentials.email,
       },
-      {
+      projections: {
         $push: { categories: { _id: new ObjectId(), category: payload.category } },
-      }
-    );
-    const doc = await findOne(
-      request,
-      {
+      },
+    });
+    const doc = await findOne({
+      db: db,
+      dbCollection: "users",
+      filter: {
         email: request.auth.credentials.email,
         "categories.category": payload.category,
       },
-      { projection: { "categories.$": 1 } }
-    );
+      projections: { projection: { "categories.$": 1 } },
+    });
 
     if (doc !== null) {
       // eslint-disable-next-line @typescript-eslint/no-unsafe-return
@@ -141,7 +151,8 @@ export const handlerFunctionsServices = {
       return h.response("No document matching credentials found");
     }
   },
-  signupServices: (request: Hapi.Request): UserOld => {
+  signupServices: (request: CustomRequest): UserOld => {
+    const db: Db = request.mongo.db;
     const payload = request.payload as {
       name: string;
       email: string;
@@ -156,7 +167,11 @@ export const handlerFunctionsServices = {
     let status: SignupType = {} as SignupType;
     bcrypt.hash(payload.password, saltRounds, async function (err, hashedPassword) {
       a = { ...payload, password: hashedPassword };
-      status = await insertOne(request, undefined, undefined, a);
+      status = await insertOne({
+        db: db,
+        dbCollection: "users",
+        payload1: a,
+      });
       console.log("Inserted:", status.insertedId);
     });
     return {
@@ -165,7 +180,8 @@ export const handlerFunctionsServices = {
     };
   },
   // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
-  loginServices: async (request: Hapi.Request) => {
+  loginServices: async (request: CustomRequest) => {
+    const db: Db = request.mongo.db;
     const payload = request.payload as {
       email: string;
       password: string;
@@ -174,7 +190,11 @@ export const handlerFunctionsServices = {
     let isValid: boolean = false;
     let token: string = "";
 
-    const founduserinfo: User = await findOne(request, { email: payload.email });
+    const founduserinfo: User = await findOne({
+      db: db,
+      dbCollection: "users",
+      filter: { email: payload.email },
+    });
     isValid = await bcrypt.compare(payload.password, founduserinfo.password);
     if (isValid === true) {
       credentials = {
@@ -190,24 +210,30 @@ export const handlerFunctionsServices = {
     return { isValid, credentials, token };
   },
   todosInsertServices: async (
-    request: Hapi.Request,
+    request: CustomRequest,
     h: Hapi.ResponseToolkit
   ): Promise<TodoResponse> => {
     const payload = request.payload as { todonote: string; category: string };
     const newTodo = { _id: new ObjectId(), todonote: payload.todonote };
-    await updateOne(
-      request,
-      { email: request.auth.credentials.email, "categories.category": payload.category },
-      {
+    const db: Db = request.mongo.db;
+    await updateOne({
+      db: db,
+      dbCollection: "users",
+      filter: { email: request.auth.credentials.email, "categories.category": payload.category },
+      projections: {
         $push: {
           "categories.$.todos": newTodo,
         },
-      }
-    );
-    const doc = await findOne(request, {
-      email: request.auth.credentials.email,
-      "categories.category": payload.category,
-      "categories.todos._id": newTodo._id,
+      },
+    });
+    const doc = await findOne({
+      db: db,
+      dbCollection: "users",
+      filter: {
+        email: request.auth.credentials.email,
+        "categories.category": payload.category,
+        "categories.todos._id": newTodo._id,
+      },
     });
     if (doc !== null) {
       let insertId = doc.categories.category.filter((n: any) => n.category === payload.category);
@@ -220,35 +246,41 @@ export const handlerFunctionsServices = {
     }
   },
   todosEditServices: async (
-    request: Hapi.Request,
+    request: CustomRequest,
     h: Hapi.ResponseToolkit
   ): Promise<TodoResponse> => {
     // const { objid } = request.params;
     // const id = new ObjectId(String(objid));
     const { objid, category } = request.params;
+    const db: Db = request.mongo.db;
     const id = new ObjectId(String(objid));
-    await updateOne(
-      request,
-      { email: request.auth.credentials.email, "categories.category": category },
-      { $pull: { "categories.$[outer].todos": { _id: id } } },
-      undefined,
-      { arrayFilters: [{ "outer.category": category }] }
-    );
+    await updateOne({
+      db: db,
+      dbCollection: "users",
+      filter: { email: request.auth.credentials.email, "categories.category": category },
+      projections: { $pull: { "categories.$[outer].todos": { _id: id } } },
+      arrayFilters: { arrayFilters: [{ "outer.category": category }] },
+    });
     const payload = request.payload as { todonote: string; category: string };
     const newTodo = { _id: new ObjectId(), todonote: payload.todonote };
-    await updateOne(
-      request,
-      { email: request.auth.credentials.email, "categories.category": payload.category },
-      {
+    await updateOne({
+      db: db,
+      dbCollection: "users",
+      filter: { email: request.auth.credentials.email, "categories.category": payload.category },
+      projections: {
         $push: {
           "categories.$.todos": newTodo,
         },
-      }
-    );
-    const doc = await findOne(request, {
-      email: request.auth.credentials.email,
-      "categories.category": payload.category,
-      "categories.todos._id": newTodo._id,
+      },
+    });
+    const doc = await findOne({
+      db: db,
+      dbCollection: "users",
+      filter: {
+        email: request.auth.credentials.email,
+        "categories.category": payload.category,
+        "categories.todos._id": newTodo._id,
+      },
     });
     if (doc !== null) {
       console.log("0", doc);
@@ -261,16 +293,17 @@ export const handlerFunctionsServices = {
       return h.response("No document matching credentials found");
     }
   },
-  todosDelete: async (request: Hapi.Request): Promise<number> => {
+  todosDelete: async (request: CustomRequest): Promise<number> => {
     const { objid, category } = request.params;
     const id = new ObjectId(String(objid));
-    const status = await updateOne(
-      request,
-      { email: request.auth.credentials.email, "categories.category": category },
-      { $pull: { "categories.$[outer].todos": { _id: id } } },
-      undefined,
-      { arrayFilters: [{ "outer.category": category }] }
-    );
+    const db: Db = request.mongo.db;
+    const status = await updateOne({
+      db: db,
+      dbCollection: "users",
+      filter: { email: request.auth.credentials.email, "categories.category": category },
+      projections: { $pull: { "categories.$[outer].todos": { _id: id } } },
+      arrayFilters: { arrayFilters: [{ "outer.category": category }] },
+    });
     // eslint-disable-next-line @typescript-eslint/no-unsafe-return
     return status.modifiedCount;
   },

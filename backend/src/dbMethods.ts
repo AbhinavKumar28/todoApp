@@ -1,46 +1,36 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import Hapi from "@hapi/hapi";
-import type { User } from "./types/custom.d.ts";
-export const findOne = async (
-  request: Hapi.Request,
-  filter?: object,
-  options?: object,
-  payload1?: object,
-  moreOptions?: object
-): Promise<any> => {
-  if (options === undefined && filter !== undefined) {
-    const a = await request.mongo.db.collection("users").findOne(filter);
+import type { MongoMethodsParams } from "./types/custom.d.ts";
+export const findOne = async (params: MongoMethodsParams): Promise<any> => {
+  if (params.projections === undefined && params.filter !== undefined) {
+    const a = await params.db.collection(params.dbCollection).findOne(params.filter);
     return a;
-  } else if (filter !== undefined) {
-    const a = await request.mongo.db.collection("users").findOne(filter, options);
+  } else if (params.filter !== undefined) {
+    const a = await params.db
+      .collection(params.dbCollection)
+      .findOne(params.filter, params.projections);
     return a;
   }
 };
-export const insertOne = async (
-  request: Hapi.Request,
-  filter?: object,
-  options?: object,
-  payload1?: object,
-  moreOptions?: object
-): Promise<any> => {
-  if (payload1 !== undefined) {
-    const a = await request.mongo.db.collection("users").insertOne(payload1);
+export const insertOne = async (params: MongoMethodsParams): Promise<any> => {
+  if (params.payload1 !== undefined) {
+    const a = await params.db.collection(params.dbCollection).insertOne(params.payload1);
     return a;
   }
 };
-export const updateOne = async (
-  request: Hapi.Request,
-  filter?: object,
-  options?: object,
-  payload1?: object,
-  moreOptions?: object
-): Promise<any> => {
-  if (moreOptions === undefined && filter !== undefined && options !== undefined) {
-    const a = await request.mongo.db.collection("users").updateOne(filter, options);
+export const updateOne = async (params: MongoMethodsParams): Promise<any> => {
+  if (
+    params.arrayFilters === undefined &&
+    params.filter !== undefined &&
+    params.projections !== undefined
+  ) {
+    const a = await params.db
+      .collection(params.dbCollection)
+      .updateOne(params.filter, params.projections);
     return a;
-  } else if (filter !== undefined && options !== undefined) {
-    const a = await request.mongo.db.collection("users").updateOne(filter, options, moreOptions);
+  } else if (params.filter !== undefined && params.projections !== undefined) {
+    const a = await params.db
+      .collection(params.dbCollection)
+      .updateOne(params.filter, params.projections, params.arrayFilters);
     return a;
   }
 };

@@ -1,5 +1,5 @@
 import Path from "path";
-import Hapi from "@hapi/hapi";
+import type { Request, ResponseToolkit } from "@hapi/hapi";
 import { dirname } from "path";
 import { fileURLToPath } from "url";
 import type { CategoryResponse, TodoResponse, UserOld } from "./types/custom.d.ts";
@@ -20,7 +20,7 @@ export const handlerFunctions = {
     },
   },
 
-  allTodosFetch: async (request: Hapi.Request, h: Hapi.ResponseToolkit): Promise<TodoResponse> => {
+  allTodosFetch: async (request: Request, h: ResponseToolkit): Promise<TodoResponse> => {
     try {
       return await handlerFunctionsServices.allTodosFetchServices(request, h);
     } catch (err) {
@@ -28,10 +28,7 @@ export const handlerFunctions = {
       return h.response("Error fetching todos").code(500);
     }
   },
-  categoryTodosFetch: async (
-    request: Hapi.Request,
-    h: Hapi.ResponseToolkit
-  ): Promise<TodoResponse> => {
+  categoryTodosFetch: async (request: Request, h: ResponseToolkit): Promise<TodoResponse> => {
     try {
       return await handlerFunctionsServices.categoryTodosFetchServices(request, h);
     } catch (err) {
@@ -39,10 +36,7 @@ export const handlerFunctions = {
       return h.response("Error fetching todos").code(500);
     }
   },
-  categoryFetch: async (
-    request: Hapi.Request,
-    h: Hapi.ResponseToolkit
-  ): Promise<CategoryResponse> => {
+  categoryFetch: async (request: Request, h: ResponseToolkit): Promise<CategoryResponse> => {
     try {
       return await handlerFunctionsServices.categoryFetchServices(request, h);
     } catch (err) {
@@ -50,10 +44,7 @@ export const handlerFunctions = {
       return h.response("Error fetching todos").code(500);
     }
   },
-  categoryInsert: async (
-    request: Hapi.Request,
-    h: Hapi.ResponseToolkit
-  ): Promise<CategoryResponse> => {
+  categoryInsert: async (request: Request, h: ResponseToolkit): Promise<CategoryResponse> => {
     try {
       return await handlerFunctionsServices.categoryInsertServices(request, h);
     } catch (err) {
@@ -61,11 +52,11 @@ export const handlerFunctions = {
       return h.response("Error fetching todos").code(500);
     }
   },
-  signup: (request: Hapi.Request): UserOld => {
+  signup: (request: Request): UserOld => {
     return handlerFunctionsServices.signupServices(request);
   },
   // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
-  login: async (request: Hapi.Request, h: Hapi.ResponseToolkit) => {
+  login: async (request: Request, h: ResponseToolkit) => {
     try {
       return await handlerFunctionsServices.loginServices(request);
     } catch (err) {
@@ -73,7 +64,7 @@ export const handlerFunctions = {
       return h.response("Error fetching todos").code(500);
     }
   },
-  todosInsert: async (request: Hapi.Request, h: Hapi.ResponseToolkit): Promise<TodoResponse> => {
+  todosInsert: async (request: Request, h: ResponseToolkit): Promise<TodoResponse> => {
     try {
       return await handlerFunctionsServices.todosInsertServices(request, h);
     } catch (err) {
@@ -81,7 +72,7 @@ export const handlerFunctions = {
       return h.response("Error fetching todos").code(500);
     }
   },
-  todosEdit: async (request: Hapi.Request, h: Hapi.ResponseToolkit): Promise<TodoResponse> => {
+  todosEdit: async (request: Request, h: ResponseToolkit): Promise<TodoResponse> => {
     // const { objid } = request.params;
     // const id = new ObjectId(String(objid));
     try {
@@ -91,7 +82,7 @@ export const handlerFunctions = {
       return h.response("Error fetching todos").code(500);
     }
   },
-  todosDelete: async (request: Hapi.Request): Promise<number> => {
+  todosDelete: async (request: Request): Promise<number> => {
     return handlerFunctionsServices.todosDelete(request);
   },
 };

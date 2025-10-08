@@ -1,5 +1,25 @@
-import { ObjectId } from "mongodb";
-import Hapi from "@hapi/hapi";
+import type { Db, ObjectId } from "mongodb";
+import type { Request, ResponseToolkit, ResponseObject } from "@hapi/hapi";
+interface CustomRequest extends Request {
+  mongo: {
+    db: Db;
+  };
+}
+export type MongoMethodsParams = {
+  db: Db;
+  dbCollection: string;
+  filter?: object;
+  projections?: object;
+  payload1?: object;
+  arrayFilters?: object;
+};
+export type HandlerParams = {
+  request: Request;
+  h: ResponseToolkit;
+};
+export type HandlerParams1 = {
+  request: Request;
+};
 export type Session = {
   id: ObjectId;
 };
@@ -43,9 +63,9 @@ export type Validate = {
   isValid: boolean;
   credentials: Email;
 };
-export type TodoResponse = TodoOld | TodoOld[] | Hapi.ResponseObject;
+export type TodoResponse = TodoOld | TodoOld[] | ResponseObject;
 export type CategoryOld = {
   _id: ObjectId;
   category: string;
 };
-export type CategoryResponse = CategoryOld[] | Hapi.ResponseObject;
+export type CategoryResponse = CategoryOld[] | ResponseObject;
