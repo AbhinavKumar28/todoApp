@@ -7,7 +7,8 @@ import Hapi from "@hapi/hapi";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { dirname } from "path";
-import { Db, ObjectId } from "mongodb";
+import { ObjectId } from "mongodb";
+import type { Db } from "mongodb";
 import * as Boom from "@hapi/boom";
 import { fileURLToPath } from "url";
 import type {
