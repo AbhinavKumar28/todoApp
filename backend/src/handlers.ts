@@ -19,7 +19,17 @@ export const handlerFunctions = {
       index: ["index.html"],
     },
   },
-
+  todosShare: async (request: Request, h: ResponseToolkit): Promise<TodoResponse> => {
+    // const { objid } = request.params;
+    // const id = new ObjectId(String(objid));
+    try {
+      await handlerFunctionsServices.todosShareServices(request);
+      return null;
+    } catch (err) {
+      console.error(err);
+      return h.response("Error fetching todos").code(500);
+    }
+  },
   allTodosFetch: async (request: Request, h: ResponseToolkit): Promise<TodoResponse> => {
     try {
       return await handlerFunctionsServices.allTodosFetchServices(request, h);

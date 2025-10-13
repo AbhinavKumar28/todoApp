@@ -25,5 +25,8 @@ const componentsImports = {
   EditIcon: lazy(
     () => import(/* webpackChunkName: "EditIconBundle" */ "../components/EditIcon.tsx")
   ),
+  ShareIcon: lazy(
+    () => import(/* webpackChunkName: "ShareIconBundle" */ "../components/ShareIcon.tsx")
+  ),
 };
 export default componentsImports;

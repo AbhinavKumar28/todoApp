@@ -10,6 +10,9 @@ function Id({ categories, setCategories, tasks, setTasks }: ComponentProps): JSX
   const { id } = useParams();
   const [searchInput, setSearchInput] = useState<string>("");
   const [filteredTasks, setFilteredTasks] = useState<Task[]>([]);
+  // {
+  //   id !== "Shared Todos" && useEffectToShowCategory(setCategories);
+  // }
   useEffectToShowCategory(setCategories);
   useEffectToShowTasks(setTasks, id);
   useSearchFunctionality(tasks, searchInput, setFilteredTasks);
@@ -17,12 +20,14 @@ function Id({ categories, setCategories, tasks, setTasks }: ComponentProps): JSX
     <>
       <componentsImports.Heading id={id} />
       <componentsImports.TaskInputForm searchInput={searchInput} setSearchInput={setSearchInput} />
-      <componentsImports.AddNewNote
-        categories={categories}
-        tasks={tasks}
-        setTasks={setTasks}
-        id={id}
-      />
+      {id !== "Shared Todos" && (
+        <componentsImports.AddNewNote
+          categories={categories}
+          tasks={tasks}
+          setTasks={setTasks}
+          id={id}
+        />
+      )}
       <componentsImports.BothTasks
         categories={categories}
         setCategories={setCategories}

@@ -98,6 +98,23 @@ export const routes = [
   },
   {
     method: "PUT" as RouteDefMethods,
+    path: "/todos/share/{objid}",
+    options: {
+      auth: "jwt2",
+      validate: {
+        payload: Joi.object({
+          todonote: Joi.string().required(),
+          email: Joi.string().required(),
+        }),
+        params: Joi.object({
+          objid: Joi.string().required(),
+        }),
+      },
+    },
+    handler: handlerFunctions.todosShare,
+  },
+  {
+    method: "PUT" as RouteDefMethods,
     path: "/todos/{objid}/{category}",
     options: {
       auth: "jwt2",

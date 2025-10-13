@@ -66,7 +66,11 @@ function HomePage({ categories, setCategories, tasks, setTasks }: ComponentProps
             placeholder="Add Category..."
             className="inputElement"
             value={currentCategory}
-            onChange={(e) => setCurrentCategory(e.target.value)}
+            onChange={(e) => {
+              setCurrentCategory(
+                e.target.value.toLowerCase() === "shared-todos" ? "" : e.target.value
+              );
+            }}
           />
           <button onClick={addCategory} className="addButton">
             Add{" "}

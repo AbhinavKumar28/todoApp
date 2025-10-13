@@ -63,7 +63,7 @@ export type Validate = {
   isValid: boolean;
   credentials: Email;
 };
-export type TodoResponse = TodoOld | TodoOld[] | ResponseObject;
+export type TodoResponse = TodoOld | TodoOld[] | ResponseObject | null;
 export type CategoryOld = {
   _id: ObjectId;
   category: string;

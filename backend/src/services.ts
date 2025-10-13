@@ -246,6 +246,51 @@ export const handlerFunctionsServices = {
       return h.response("No document matching credentials found");
     }
   },
+  todosShareServices: async (request: CustomRequest): Promise<undefined> => {
+    // const { objid } = request.params;
+    // const id = new ObjectId(String(objid));
+    const { objid } = request.params;
+    const db: Db = request.mongo.db;
+    const id = new ObjectId(String(objid));
+    // await updateOne({
+    //   db: db,
+    //   dbCollection: "users",
+    //   filter: { email: request.auth.credentials.email, "categories.category": category },
+    //   projections: { $pull: { "categories.$[outer].todos": { _id: id } } },
+    //   arrayFilters: { arrayFilters: [{ "outer.category": category }] },
+    // });
+    const payload = request.payload as { todonote: string; email: string };
+    // await updateOne({
+    //   db: db,
+    //   dbCollection: "users",
+    //   filter: { email: request.auth.credentials.email, "categories.category": payload.category },
+
+    // });
+    await updateOne({
+      db: db,
+      dbCollection: "users",
+      filter: {
+        email: request.auth.credentials.email,
+        // "categories.todos._id": id,
+      },
+      projections: {
+        $addToSet: { "categories.$[].todos.$[todo].sharedwith": payload.email },
+      },
+      arrayFilters: { arrayFilters: [{ "todo._id": id }] },
+    });
+    await updateOne({
+      db: db,
+      dbCollection: "users",
+      filter: {
+        email: request.auth.credentials.email,
+        // "categories.todos._id": id,
+      },
+      projections: {
+        $set: { "categories.$[].todos.$[todo].todonote": payload.todonote },
+      },
+      arrayFilters: { arrayFilters: [{ "todo._id": id }] },
+    });
+  },
   todosEditServices: async (
     request: CustomRequest,
     h: Hapi.ResponseToolkit

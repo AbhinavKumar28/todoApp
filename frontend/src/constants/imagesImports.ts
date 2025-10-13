@@ -7,5 +7,6 @@ const imagesImports = {
   toggleLight: "/assets/color-scheme-(1).svg",
   edit: "/assets/frame-6.svg",
   search: "/assets/vector.svg",
+  share: "/assets/share.png",
 };
 export default imagesImports;

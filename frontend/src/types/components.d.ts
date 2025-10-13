@@ -17,6 +17,10 @@ export type Task = {
   todonote: string;
   category: string;
 };
+export type People = {
+  _id: string;
+  email: string;
+};
 export type Category = {
   _id: string;
   category: string;
@@ -39,7 +43,11 @@ export type ComponentProps = {
   tasks: Task[];
   setTasks: React.Dispatch<React.SetStateAction<Task[]>>;
 };
-
+export type ShareProps = {
+  tasks: Task[];
+  setTasks: React.Dispatch<React.SetStateAction<Task[]>>;
+  index: string;
+};
 export type AddNewNodeProps = {
   categories: Category[];
   tasks: Task[];

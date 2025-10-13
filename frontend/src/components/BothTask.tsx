@@ -50,6 +50,7 @@ function BothTasks({ categories, setCategories, tasks, setTasks }: ComponentProp
                 alt=""
                 src={images.trash}
               />
+              <componentsImports.ShareIcon tasks={tasks} setTasks={setTasks} index={td._id} />
             </span>
           </li>
           <hr className="noteDivider" />
