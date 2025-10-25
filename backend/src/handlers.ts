@@ -38,6 +38,15 @@ export const handlerFunctions = {
       return h.response("Error fetching todos").code(500);
     }
   },
+  sharedTodosFetch: async (request: Request, h: ResponseToolkit): Promise<TodoResponse> => {
+    try {
+      return await handlerFunctionsServices.sharedTodosFetchServices(request, h);
+    } catch (err) {
+      console.error(err);
+      var error = (err as Error).message;
+      return h.response("sharedTodosFetch Error: " + error).code(500);
+    }
+  },
   categoryTodosFetch: async (request: Request, h: ResponseToolkit): Promise<TodoResponse> => {
     try {
       return await handlerFunctionsServices.categoryTodosFetchServices(request, h);
@@ -87,6 +96,16 @@ export const handlerFunctions = {
     // const id = new ObjectId(String(objid));
     try {
       return await handlerFunctionsServices.todosEditServices(request, h);
+    } catch (err) {
+      console.error(err);
+      return h.response("Error fetching todos").code(500);
+    }
+  },
+  todosSharedEdit: async (request: Request, h: ResponseToolkit): Promise<TodoResponse> => {
+    // const { objid } = request.params;
+    // const id = new ObjectId(String(objid));
+    try {
+      return await handlerFunctionsServices.todosSharedEditServices(request, h);
     } catch (err) {
       console.error(err);
       return h.response("Error fetching todos").code(500);

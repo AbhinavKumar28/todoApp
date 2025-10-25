@@ -20,7 +20,7 @@ function Id({ categories, setCategories, tasks, setTasks }: ComponentProps): JSX
     <>
       <componentsImports.Heading id={id} />
       <componentsImports.TaskInputForm searchInput={searchInput} setSearchInput={setSearchInput} />
-      {id !== "Shared Todos" && (
+      {id !== "shared-todos" && (
         <componentsImports.AddNewNote
           categories={categories}
           tasks={tasks}
@@ -33,6 +33,7 @@ function Id({ categories, setCategories, tasks, setTasks }: ComponentProps): JSX
         setCategories={setCategories}
         tasks={filteredTasks}
         setTasks={setTasks}
+        flag={id}
       />
       <componentsImports.BackImage />
     </>

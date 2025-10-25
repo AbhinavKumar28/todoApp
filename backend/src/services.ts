@@ -22,7 +22,7 @@ import type {
   User,
   UserOld,
 } from "./types/custom.d.ts";
-import { findOne, insertOne, updateOne } from "./dbMethods.ts";
+import { aggregate, findOne, insertOne, updateOne } from "./dbMethods.ts";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 export const handlerFunctionsServices = {
@@ -50,7 +50,7 @@ export const handlerFunctionsServices = {
       filter: {
         email: request.auth.credentials.email,
       },
-      projections: { projection: { "categories.todos": 1, "categories.category": 1 } },
+      whatToShow: { projection: { "categories.todos": 1, "categories.category": 1 } },
     });
     if (doc !== null) {
       let newTodosMain: TodoOld[] = [];
@@ -63,6 +63,57 @@ export const handlerFunctionsServices = {
         });
 
         newTodosMain = [...newTodosMain, ...newTodos];
+      }
+
+      return newTodosMain;
+    } else {
+      return h.response("Error: No document matching credentials found");
+    }
+  },
+  sharedTodosFetchServices: async (
+    request: CustomRequest,
+    h: Hapi.ResponseToolkit
+  ): Promise<TodoResponse> => {
+    const db: Db = request.mongo.db;
+    const doc = await aggregate({
+      db: db,
+      dbCollection: "users",
+      pipeline: [
+        {
+          $unwind: "$categories",
+        },
+        {
+          $unwind: "$categories.todos",
+        },
+        {
+          $match: {
+            "categories.todos.sharedwith": request.auth.credentials.email,
+          },
+        },
+        {
+          $project: {
+            _id: 0,
+            email: "$email",
+            todo: "$categories.todos",
+            category: "$categories.category"
+          },
+        },
+      ],
+    });
+    // console.log("DOC: " + JSON.stringify(doc, null, 2));
+    // && doc.todo !== undefined
+    if (doc !== null) {
+      let newTodosMain: TodoOld[] = [];
+      // console.log("DOC: " + doc.todo);
+      for (const i of doc) {
+        const todos = { _id: i.todo._id, todonote: i.todo.todonote, category: i.category };
+        // console.log(todos);
+        newTodosMain.push(todos);
+        // const newTodos = todos.map((td: Todos): TodoOld => {
+        //   return { ...td, category: "shared-todos" };
+        // });
+
+        // newTodosMain = [...newTodosMain, ...newTodos];
       }
 
       return newTodosMain;
@@ -84,7 +135,7 @@ export const handlerFunctionsServices = {
 
         "categories.category": categories,
       },
-      projections: { projection: { "categories.$": 1 } },
+      whatToShow: { projection: { "categories.$": 1 } },
     });
     if (doc !== null) {
       const todos = doc.categories[0].todos;
@@ -110,7 +161,7 @@ export const handlerFunctionsServices = {
       filter: {
         email: request.auth.credentials.email,
       },
-      projections: { projection: { "categories.category": 1, "categories._id": 1 } },
+      whatToShow: { projection: { "categories.category": 1, "categories._id": 1 } },
     });
     if (doc !== null) {
       // eslint-disable-next-line @typescript-eslint/no-unsafe-return
@@ -131,7 +182,7 @@ export const handlerFunctionsServices = {
       filter: {
         email: request.auth.credentials.email,
       },
-      projections: {
+      whatToDo: {
         $push: { categories: { _id: new ObjectId(), category: payload.category } },
       },
     });
@@ -142,7 +193,7 @@ export const handlerFunctionsServices = {
         email: request.auth.credentials.email,
         "categories.category": payload.category,
       },
-      projections: { projection: { "categories.$": 1 } },
+      whatToShow: { projection: { "categories.$": 1 } },
     });
 
     if (doc !== null) {
@@ -171,7 +222,7 @@ export const handlerFunctionsServices = {
       status = await insertOne({
         db: db,
         dbCollection: "users",
-        payload1: a,
+        payloadToInsert: a,
       });
       console.log("Inserted:", status.insertedId);
     });
@@ -221,7 +272,7 @@ export const handlerFunctionsServices = {
       db: db,
       dbCollection: "users",
       filter: { email: request.auth.credentials.email, "categories.category": payload.category },
-      projections: {
+      whatToDo: {
         $push: {
           "categories.$.todos": newTodo,
         },
@@ -273,7 +324,7 @@ export const handlerFunctionsServices = {
         email: request.auth.credentials.email,
         // "categories.todos._id": id,
       },
-      projections: {
+      whatToDo: {
         $addToSet: { "categories.$[].todos.$[todo].sharedwith": payload.email },
       },
       arrayFilters: { arrayFilters: [{ "todo._id": id }] },
@@ -285,11 +336,114 @@ export const handlerFunctionsServices = {
         email: request.auth.credentials.email,
         // "categories.todos._id": id,
       },
-      projections: {
+      whatToDo: {
         $set: { "categories.$[].todos.$[todo].todonote": payload.todonote },
       },
       arrayFilters: { arrayFilters: [{ "todo._id": id }] },
     });
+  },
+  todosSharedEditServices: async (
+    request: CustomRequest,
+    h: Hapi.ResponseToolkit
+  ): Promise<TodoResponse> => {
+    // const { objid } = request.params;
+    // const id = new ObjectId(String(objid));
+    const { objid } = request.params;
+    const db: Db = request.mongo.db;
+    const id = new ObjectId(String(objid));
+    const doc = await aggregate({
+      db: db,
+      dbCollection: "users",
+      pipeline: [
+        {
+          $unwind: "$categories",
+        },
+        {
+          $unwind: "$categories.todos",
+        },
+        {
+          $match: {
+            "categories.todos.sharedwith": request.auth.credentials.email,
+          },
+        },
+        {
+          $project: {
+            _id: 0,
+            email: "$email",
+            todo: "$categories.todos",
+          },
+        },
+      ],
+    });
+    
+    db.collection.aggregate([
+  {
+    $match: {
+      "categories.todos.id": "todo2"
+    }
+  },
+  
+  {
+    $unwind: "$categories"
+  },
+  
+  {
+    $unwind: "$categories.todos"
+  },
+
+  {
+    $match: {
+      "categories.todos.id": "todo2"
+    }
+  },
+  
+  {
+    $project: {
+      _id: 0, 
+      id: "$categories.todos.id",
+      todonote: "$categories.todos.todonote",
+      sharedwith: "$categories.todos.sharedwith"
+    }
+  }
+])
+    await updateOne({
+      db: db,
+      dbCollection: "users",
+      filter: { categories.: request.auth.credentials.email },
+      whatToDo: { $pull: { "categories.$[outer].todos": { _id: id } } },
+      arrayFilters: { arrayFilters: [{ "outer.category": category }] },
+    });
+    const payload = request.payload as { todonote: string; category: string };
+    const newTodo = { _id: new ObjectId(), todonote: payload.todonote };
+    await updateOne({
+      db: db,
+      dbCollection: "users",
+      filter: { email: request.auth.credentials.email, "categories.category": payload.category },
+      whatToDo: {
+        $push: {
+          "categories.$.todos": newTodo,
+        },
+      },
+    });
+    const doc = await findOne({
+      db: db,
+      dbCollection: "users",
+      filter: {
+        email: request.auth.credentials.email,
+        "categories.category": payload.category,
+        "categories.todos._id": newTodo._id,
+      },
+    });
+    if (doc !== null) {
+      console.log("0", doc);
+      let insertId = doc.categories.filter((n: any) => n.category === payload.category);
+
+      let ab = insertId[0].todos.filter((n: any) => n._id === newTodo._id);
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+      return { ...ab[0], category: payload.category };
+    } else {
+      return h.response("No document matching credentials found");
+    }
   },
   todosEditServices: async (
     request: CustomRequest,
@@ -304,7 +458,7 @@ export const handlerFunctionsServices = {
       db: db,
       dbCollection: "users",
       filter: { email: request.auth.credentials.email, "categories.category": category },
-      projections: { $pull: { "categories.$[outer].todos": { _id: id } } },
+      whatToDo: { $pull: { "categories.$[outer].todos": { _id: id } } },
       arrayFilters: { arrayFilters: [{ "outer.category": category }] },
     });
     const payload = request.payload as { todonote: string; category: string };
@@ -313,7 +467,7 @@ export const handlerFunctionsServices = {
       db: db,
       dbCollection: "users",
       filter: { email: request.auth.credentials.email, "categories.category": payload.category },
-      projections: {
+      whatToDo: {
         $push: {
           "categories.$.todos": newTodo,
         },
@@ -347,7 +501,7 @@ export const handlerFunctionsServices = {
       db: db,
       dbCollection: "users",
       filter: { email: request.auth.credentials.email, "categories.category": category },
-      projections: { $pull: { "categories.$[outer].todos": { _id: id } } },
+      whatToDo: { $pull: { "categories.$[outer].todos": { _id: id } } },
       arrayFilters: { arrayFilters: [{ "outer.category": category }] },
     });
     // eslint-disable-next-line @typescript-eslint/no-unsafe-return

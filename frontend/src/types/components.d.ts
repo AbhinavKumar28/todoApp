@@ -36,12 +36,20 @@ export type EditIconProps = {
   setTasks: React.Dispatch<React.SetStateAction<Task[]>>;
   index: string;
   category: string;
+  flag: string | undefined;
 };
 export type ComponentProps = {
   categories: Category[];
   setCategories: React.Dispatch<React.SetStateAction<Category[]>>;
   tasks: Task[];
   setTasks: React.Dispatch<React.SetStateAction<Task[]>>;
+};
+export type FlagComponentProps = {
+  categories: Category[];
+  setCategories: React.Dispatch<React.SetStateAction<Category[]>>;
+  tasks: Task[];
+  setTasks: React.Dispatch<React.SetStateAction<Task[]>>;
+  flag: string | undefined;
 };
 export type ShareProps = {
   tasks: Task[];

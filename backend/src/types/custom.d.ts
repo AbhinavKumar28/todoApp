@@ -9,9 +9,12 @@ export type MongoMethodsParams = {
   db: Db;
   dbCollection: string;
   filter?: object;
-  projections?: object;
-  payload1?: object;
+  whatToDo?: object; //push or pull come here
+  whatToShow?: object; // projections come here
+  payloadToInsert?: object;
   arrayFilters?: object;
+  // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
+  pipeline?: Array | undefined;
 };
 export type HandlerParams = {
   request: Request;

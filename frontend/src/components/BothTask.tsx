@@ -4,8 +4,14 @@ import images from "../constants/imagesImports.ts";
 import "../assets/images/trash-svgrepo-com-1.svg";
 import React from "react";
 import type { JSX } from "react";
-import type { Task, ComponentProps } from "../types/components.d.ts";
-function BothTasks({ categories, setCategories, tasks, setTasks }: ComponentProps): JSX.Element {
+import type { Task, FlagComponentProps } from "../types/components.d.ts";
+function BothTasks({
+  categories,
+  setCategories,
+  tasks,
+  setTasks,
+  flag,
+}: FlagComponentProps): JSX.Element {
   const removeTask = async (i: string): Promise<void> => {
     const removedTask: Task[] = tasks.filter((task: Task): boolean => task._id !== i);
     setTasks(removedTask);
@@ -42,6 +48,7 @@ function BothTasks({ categories, setCategories, tasks, setTasks }: ComponentProp
                 setTasks={setTasks}
                 index={td._id}
                 category={td.category}
+                flag={flag}
               />
               <img
                 className="trashIcon"
@@ -50,7 +57,9 @@ function BothTasks({ categories, setCategories, tasks, setTasks }: ComponentProp
                 alt=""
                 src={images.trash}
               />
-              <componentsImports.ShareIcon tasks={tasks} setTasks={setTasks} index={td._id} />
+              {flag !== "shared-todos" && (
+                <componentsImports.ShareIcon tasks={tasks} setTasks={setTasks} index={td._id} />
+              )}
             </span>
           </li>
           <hr className="noteDivider" />

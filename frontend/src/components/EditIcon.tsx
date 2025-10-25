@@ -15,6 +15,7 @@ function EditIcon({
   setTasks,
   index,
   category,
+  flag
 }: EditIconProps): JSX.Element {
   const foundTask = tasks.find((item) => item._id === index);
   const [currentTask, setCurrentTask] = useState<string>(foundTask ? foundTask.todonote : "");
@@ -84,21 +85,23 @@ function EditIcon({
                 onChange={(e) => setCurrentTask(e.target.value)}
               />
             </div>
-            <div className="inputContainer">
-              <select
-                name="cars"
-                id="category"
-                value={selectedCategory}
-                onChange={handleCategoryChange}
-                className="inputElement"
-                aria-hidden
-              >
-                <option value="" disabled selected hidden>
-                  Input your category
-                </option>
-                {renderCategories()}
-              </select>
-            </div>
+            {flag !== "shared-todos" && (
+              <div className="inputContainer">
+                <select
+                  name="cars"
+                  id="category"
+                  value={selectedCategory}
+                  onChange={handleCategoryChange}
+                  className="inputElement"
+                  aria-hidden
+                >
+                  <option value="" disabled selected hidden>
+                    Input your category
+                  </option>
+                  {renderCategories()}
+                </select>
+              </div>
+            )}
 
             <div className="content">
               <button

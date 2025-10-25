@@ -1,6 +1,6 @@
 import { handlerFunctions } from "./handlers.ts";
 import Joi from "joi";
-import type { RouteDefMethods } from "@hapi/hapi";
+import type { Request, ResponseToolkit, RouteDefMethods, Lifecycle } from "@hapi/hapi";
 export const routes = [
   {
     method: "GET" as RouteDefMethods,
@@ -20,6 +20,14 @@ export const routes = [
       auth: "jwt2",
     },
     handler: handlerFunctions.allTodosFetch,
+  },
+  {
+    method: "GET" as RouteDefMethods,
+    path: "/list/shared-todos/todos",
+    options: {
+      auth: "jwt2",
+    },
+    handler: handlerFunctions.sharedTodosFetch,
   },
   {
     method: "GET" as RouteDefMethods,
@@ -49,8 +57,12 @@ export const routes = [
       auth: "jwt2",
       validate: {
         payload: Joi.object({
-          category: Joi.string().required(),
+          category: Joi.string().invalid("shared-todos").required(),
         }),
+        failAction: (request: Request, h: ResponseToolkit, err?: Error): Lifecycle.ReturnValue => {
+          // throw err;
+          throw err || new Error("Validation failed");
+        },
       },
     },
     handler: handlerFunctions.categoryInsert,
@@ -130,6 +142,23 @@ export const routes = [
       },
     },
     handler: handlerFunctions.todosEdit,
+  },
+  {
+    method: "PUT" as RouteDefMethods,
+    path: "/todos/{objid}/shared-todos",
+    options: {
+      auth: "jwt2",
+      validate: {
+        payload: Joi.object({
+          todonote: Joi.string().required(),
+          category: Joi.string().required(),
+        }),
+        params: Joi.object({
+          objid: Joi.string().required(),
+        }),
+      },
+    },
+    handler: handlerFunctions.todosSharedEdit,
   },
   {
     method: "DELETE" as RouteDefMethods,
