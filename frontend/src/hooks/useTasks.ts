@@ -6,6 +6,7 @@ export const useEffectToShowTasks = (
   id: string | undefined
 ): null => {
   useEffect(() => {
+    console.log("useeffecttoshowtasks", "id", id);
     const showTask = async (): Promise<void> => {
       let data: Task[] = [];
       const a = localStorage.getItem("currentUser") ? localStorage.getItem("currentUser") : null;

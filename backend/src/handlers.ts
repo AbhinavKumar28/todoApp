@@ -1,9 +1,18 @@
 import Path from "path";
-import type { Request, ResponseToolkit } from "@hapi/hapi";
+import type { ResponseToolkit } from "@hapi/hapi";
 import { dirname } from "path";
 import { fileURLToPath } from "url";
-import type { CategoryResponse, TodoResponse, UserOld } from "./types/custom.d.ts";
-import { handlerFunctionsServices } from "./services.ts";
+import type {
+  CategoryResponse,
+  CustomRequest,
+  CustomRequestTodo,
+  TodoResponse,
+  UserOld,
+} from "./types/custom.d.ts";
+// import { handlerFunctionsServices } from "./services.ts";
+import { loginServices } from "./services/loginServices.ts";
+import { todoServices } from "./services/todoServices.ts";
+import { categoryServices } from "./services/categoryServices.ts";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 export const handlerFunctions = {
@@ -19,99 +28,104 @@ export const handlerFunctions = {
       index: ["index.html"],
     },
   },
-  todosShare: async (request: Request, h: ResponseToolkit): Promise<TodoResponse> => {
+  todosShare: async (request: CustomRequest, h: ResponseToolkit): Promise<TodoResponse> => {
     // const { objid } = request.params;
     // const id = new ObjectId(String(objid));
     try {
-      await handlerFunctionsServices.todosShareServices(request);
+      await todoServices.todosShareServices(request);
       return null;
     } catch (err) {
       console.error(err);
       return h.response("Error fetching todos").code(500);
     }
   },
-  allTodosFetch: async (request: Request, h: ResponseToolkit): Promise<TodoResponse> => {
+  allTodosFetch: async (request: CustomRequest, h: ResponseToolkit): Promise<TodoResponse> => {
     try {
-      return await handlerFunctionsServices.allTodosFetchServices(request, h);
+      return await todoServices.allTodosFetchServices(request, h);
     } catch (err) {
       console.error(err);
       return h.response("Error fetching todos").code(500);
     }
   },
-  sharedTodosFetch: async (request: Request, h: ResponseToolkit): Promise<TodoResponse> => {
+  // sharedTodosFetch: async (request: Request, h: ResponseToolkit): Promise<TodoResponse> => {
+  //   try {
+  //     return await handlerFunctionsServices.sharedTodosFetchServices(request, h);
+  //   } catch (err) {
+  //     console.error(err);
+  //     var error = (err as Error).message;
+  //     return h.response("sharedTodosFetch Error: " + error).code(500);
+  //   }
+  // },
+  categoryTodosFetch: async (
+    request: CustomRequestTodo,
+    h: ResponseToolkit
+  ): Promise<TodoResponse> => {
     try {
-      return await handlerFunctionsServices.sharedTodosFetchServices(request, h);
-    } catch (err) {
-      console.error(err);
-      var error = (err as Error).message;
-      return h.response("sharedTodosFetch Error: " + error).code(500);
-    }
-  },
-  categoryTodosFetch: async (request: Request, h: ResponseToolkit): Promise<TodoResponse> => {
-    try {
-      return await handlerFunctionsServices.categoryTodosFetchServices(request, h);
-    } catch (err) {
-      console.error(err);
-      return h.response("Error fetching todos").code(500);
-    }
-  },
-  categoryFetch: async (request: Request, h: ResponseToolkit): Promise<CategoryResponse> => {
-    try {
-      return await handlerFunctionsServices.categoryFetchServices(request, h);
+      // console.log("CategoryTodosFetch ok");
+      return await todoServices.categoryTodosFetchServices(request, h);
     } catch (err) {
       console.error(err);
       return h.response("Error fetching todos").code(500);
     }
   },
-  categoryInsert: async (request: Request, h: ResponseToolkit): Promise<CategoryResponse> => {
+  categoryFetch: async (request: CustomRequest, h: ResponseToolkit): Promise<CategoryResponse> => {
     try {
-      return await handlerFunctionsServices.categoryInsertServices(request, h);
+      return await categoryServices.categoryFetchServices(request, h);
     } catch (err) {
       console.error(err);
       return h.response("Error fetching todos").code(500);
     }
   },
-  signup: (request: Request): UserOld => {
-    return handlerFunctionsServices.signupServices(request);
+  categoryInsert: async (request: CustomRequest, h: ResponseToolkit): Promise<CategoryResponse> => {
+    try {
+      return await categoryServices.categoryInsertServices(request, h);
+    } catch (err) {
+      console.error(err);
+      return h.response("Error fetching todos").code(500);
+    }
+  },
+  signup: (request: CustomRequest): UserOld => {
+    return loginServices.signupServices(request);
   },
   // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
-  login: async (request: Request, h: ResponseToolkit) => {
+  login: async (request: CustomRequest, h: ResponseToolkit) => {
     try {
-      return await handlerFunctionsServices.loginServices(request);
+      return await loginServices.loginServices(request);
     } catch (err) {
       console.error(err);
       return h.response("Error fetching todos").code(500);
     }
   },
-  todosInsert: async (request: Request, h: ResponseToolkit): Promise<TodoResponse> => {
+  todosInsert: async (request: CustomRequest, h: ResponseToolkit): Promise<TodoResponse> => {
     try {
-      return await handlerFunctionsServices.todosInsertServices(request, h);
+      return await todoServices.todosInsertServices(request, h);
     } catch (err) {
       console.error(err);
       return h.response("Error fetching todos").code(500);
     }
   },
-  todosEdit: async (request: Request, h: ResponseToolkit): Promise<TodoResponse> => {
+  todosEdit: async (request: CustomRequest, h: ResponseToolkit): Promise<TodoResponse> => {
     // const { objid } = request.params;
     // const id = new ObjectId(String(objid));
     try {
-      return await handlerFunctionsServices.todosEditServices(request, h);
+      return await todoServices.todosEditServices(request, h);
     } catch (err) {
       console.error(err);
       return h.response("Error fetching todos").code(500);
     }
   },
-  todosSharedEdit: async (request: Request, h: ResponseToolkit): Promise<TodoResponse> => {
-    // const { objid } = request.params;
-    // const id = new ObjectId(String(objid));
-    try {
-      return await handlerFunctionsServices.todosSharedEditServices(request, h);
-    } catch (err) {
-      console.error(err);
-      return h.response("Error fetching todos").code(500);
-    }
-  },
-  todosDelete: async (request: Request): Promise<number> => {
-    return handlerFunctionsServices.todosDelete(request);
+  // todosSharedEdit: async (request: Request, h: ResponseToolkit): Promise<TodoResponse> => {
+  //   // const { objid } = request.params;
+  //   // const id = new ObjectId(String(objid));
+  //   try {
+  //     return await handlerFunctionsServices.todosSharedEditServices(request, h);
+  //   } catch (err) {
+  //     console.error(err);
+  //     return h.response("Error fetching todos").code(500);
+  //   }
+  // },
+  todosDelete: async (request: CustomRequest): Promise<number> => {
+    console.log("handler ok");
+    return todoServices.todosDeleteServices(request);
   },
 };

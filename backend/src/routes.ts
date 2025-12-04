@@ -1,16 +1,20 @@
-import { handlerFunctions } from "./handlers.ts";
+// import { handlerFunctions } from "./handlers.ts";
 import Joi from "joi";
 import type { Request, ResponseToolkit, RouteDefMethods, Lifecycle } from "@hapi/hapi";
+import { staticFileServices } from "./services/staticFileServices.ts";
+import { todoHandler } from "./handlers/todosHandler.ts";
+import { categoryHandler } from "./handlers/categoryHandler.ts";
+import { userHandler } from "./handlers/userHandler.ts";
 export const routes = [
   {
     method: "GET" as RouteDefMethods,
     path: "/assets/{param*}",
-    handler: handlerFunctions.assets,
+    handler: staticFileServices.assets,
   },
   {
     method: "GET" as RouteDefMethods,
     path: "/{param*}",
-    handler: handlerFunctions.params,
+    handler: staticFileServices.params,
   },
 
   {
@@ -19,16 +23,16 @@ export const routes = [
     options: {
       auth: "jwt2",
     },
-    handler: handlerFunctions.allTodosFetch,
+    handler: todoHandler.allTodosFetch,
   },
-  {
-    method: "GET" as RouteDefMethods,
-    path: "/list/shared-todos/todos",
-    options: {
-      auth: "jwt2",
-    },
-    handler: handlerFunctions.sharedTodosFetch,
-  },
+  // {
+  //   method: "GET" as RouteDefMethods,
+  //   path: "/list/shared-todos/todos",
+  //   options: {
+  //     auth: "jwt2",
+  //   },
+  //   handler: handlerFunctions.sharedTodosFetch,
+  // },
   {
     method: "GET" as RouteDefMethods,
     path: "/list/{categories}/todos",
@@ -40,7 +44,7 @@ export const routes = [
         }),
       },
     },
-    handler: handlerFunctions.categoryTodosFetch,
+    handler: todoHandler.categoryTodosFetch,
   },
   {
     method: "GET" as RouteDefMethods,
@@ -48,7 +52,7 @@ export const routes = [
     options: {
       auth: "jwt2",
     },
-    handler: handlerFunctions.categoryFetch,
+    handler: categoryHandler.categoryFetch,
   },
   {
     method: "POST" as RouteDefMethods,
@@ -65,7 +69,7 @@ export const routes = [
         },
       },
     },
-    handler: handlerFunctions.categoryInsert,
+    handler: categoryHandler.categoryInsert,
   },
   {
     method: "POST" as RouteDefMethods,
@@ -79,7 +83,7 @@ export const routes = [
         }),
       },
     },
-    handler: handlerFunctions.signup,
+    handler: userHandler.signup,
   },
   {
     method: "POST" as RouteDefMethods,
@@ -92,7 +96,7 @@ export const routes = [
         }),
       },
     },
-    handler: handlerFunctions.login,
+    handler: userHandler.login,
   },
   {
     method: "POST" as RouteDefMethods,
@@ -106,25 +110,25 @@ export const routes = [
         }),
       },
     },
-    handler: handlerFunctions.todosInsert,
+    handler: todoHandler.todosInsert,
   },
-  {
-    method: "PUT" as RouteDefMethods,
-    path: "/todos/share/{objid}",
-    options: {
-      auth: "jwt2",
-      validate: {
-        payload: Joi.object({
-          todonote: Joi.string().required(),
-          email: Joi.string().required(),
-        }),
-        params: Joi.object({
-          objid: Joi.string().required(),
-        }),
-      },
-    },
-    handler: handlerFunctions.todosShare,
-  },
+  // {
+  //   method: "PUT" as RouteDefMethods,
+  //   path: "/todos/share/{objid}",
+  //   options: {
+  //     auth: "jwt2",
+  //     validate: {
+  //       payload: Joi.object({
+  //         todonote: Joi.string().required(),
+  //         email: Joi.string().required(),
+  //       }),
+  //       params: Joi.object({
+  //         objid: Joi.string().required(),
+  //       }),
+  //     },
+  //   },
+  //   handler: handlerFunctions.todosShare,
+  // },
   {
     method: "PUT" as RouteDefMethods,
     path: "/todos/{objid}/{category}",
@@ -141,25 +145,25 @@ export const routes = [
         }),
       },
     },
-    handler: handlerFunctions.todosEdit,
+    handler: todoHandler.todosEdit,
   },
-  {
-    method: "PUT" as RouteDefMethods,
-    path: "/todos/{objid}/shared-todos",
-    options: {
-      auth: "jwt2",
-      validate: {
-        payload: Joi.object({
-          todonote: Joi.string().required(),
-          category: Joi.string().required(),
-        }),
-        params: Joi.object({
-          objid: Joi.string().required(),
-        }),
-      },
-    },
-    handler: handlerFunctions.todosSharedEdit,
-  },
+  // {
+  //   method: "PUT" as RouteDefMethods,
+  //   path: "/todos/{objid}/shared-todos",
+  //   options: {
+  //     auth: "jwt2",
+  //     validate: {
+  //       payload: Joi.object({
+  //         todonote: Joi.string().required(),
+  //         category: Joi.string().required(),
+  //       }),
+  //       params: Joi.object({
+  //         objid: Joi.string().required(),
+  //       }),
+  //     },
+  //   },
+  //   handler: handlerFunctions.todosSharedEdit,
+  // },
   {
     method: "DELETE" as RouteDefMethods,
     path: "/todos/{objid}/{category}",
@@ -172,6 +176,6 @@ export const routes = [
         }),
       },
     },
-    handler: handlerFunctions.todosDelete,
+    handler: todoHandler.todosDelete,
   },
 ];
