@@ -75,3 +75,4 @@ export type Obj = {
 export type ResponseCategory = {
   category: string;
 };
+export type TaskContextType = [Task[], React.Dispatch<React.SetStateAction<Task[]>>];
