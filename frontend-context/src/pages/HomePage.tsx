@@ -5,10 +5,11 @@ import images from "../constants/imagesImports.ts";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import type { JSX } from "react";
-import type { Category, ComponentProps } from "../types/components.d.ts";
-import componentsImports from "../constants/componentsImports.ts";
+import type { Category } from "../types/components.d.ts";
 import { useEffectToShowCategory } from "../hooks/useCategory.ts";
-function HomePage({ categories, setCategories, tasks, setTasks }: ComponentProps): JSX.Element {
+import { useCategoryContext } from "../App/App.tsx";
+function HomePage(): JSX.Element {
+  const [categories, setCategories] = useCategoryContext();
   const [currentCategory, setCurrentCategory] = useState<string>("");
   const navigate = useNavigate();
   const showAlert = (): null => {
@@ -109,12 +110,12 @@ function HomePage({ categories, setCategories, tasks, setTasks }: ComponentProps
         </div>
         <div id="alert"></div>
         <div className="list">{renderCategories()}</div>
-        <componentsImports.AddNewNote
+        {/* <componentsImports.AddNewNote
           categories={categories}
           tasks={tasks}
           setTasks={setTasks}
           id="household"
-        />
+        /> */}
       </div>
     </>
   );

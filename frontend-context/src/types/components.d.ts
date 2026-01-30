@@ -30,10 +30,6 @@ export type TaskInputFormProps = {
   setSearchInput: React.Dispatch<React.SetStateAction<string>>;
 };
 export type EditIconProps = {
-  categories: Category[];
-  setCategories: React.Dispatch<React.SetStateAction<Category[]>>;
-  tasks: Task[];
-  setTasks: React.Dispatch<React.SetStateAction<Task[]>>;
   index: string;
   category: string;
   flag: string | undefined;
@@ -76,3 +72,4 @@ export type ResponseCategory = {
   category: string;
 };
 export type TaskContextType = [Task[], React.Dispatch<React.SetStateAction<Task[]>>];
+export type CategoryContextType = [Category[], React.Dispatch<React.SetStateAction<Category[]>>];

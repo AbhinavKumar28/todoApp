@@ -1,9 +1,8 @@
 import type { JSX } from "react";
 import "../assets/styles/styles.css";
-import type { Data, Data_login, ComponentProps } from "../types/components.d.ts";
+import type { Data, Data_login } from "../types/components.d.ts";
 import { useNavigate } from "react-router-dom";
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-function Login({ categories, setCategories, tasks, setTasks }: ComponentProps): JSX.Element {
+function Login(): JSX.Element {
   let data: Data = {} as Data;
   let data_login: Data_login = {} as Data_login;
   const navigate = useNavigate();

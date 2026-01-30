@@ -3,10 +3,15 @@ import "../assets/images/add-button.svg";
 import images from "../constants/imagesImports.ts";
 import Popup from "reactjs-popup";
 import type { JSX } from "react";
-import type { Task, Category, AddNewNodeProps } from "../types/components.d.ts";
+import type { Task, Category } from "../types/components.d.ts";
 import { useState } from "react";
 import React from "react";
-function AddNewNote({ categories, tasks, setTasks, id }: AddNewNodeProps): JSX.Element {
+import { useCategoryContext, useTaskContext } from "../App/App.tsx";
+import { useIdContext } from "../pages/Id.tsx";
+function AddNewNote(): JSX.Element {
+  const [categories] = useCategoryContext();
+  const [tasks, setTasks] = useTaskContext();
+  const id = useIdContext();
   const [currentTask, setCurrentTask] = useState("");
   const [selectedCategory, setSelectedCategory] = useState(id);
   function handleCategoryChange(e: React.ChangeEvent<HTMLSelectElement>): null {

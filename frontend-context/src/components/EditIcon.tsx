@@ -6,17 +6,11 @@ import type { JSX } from "react";
 import { useState } from "react";
 import React from "react";
 import type { Task, Category, EditIconProps } from "../types/components.d.ts";
+import { useCategoryContext, useTaskContext } from "../App/App.tsx";
 type category = string;
-function EditIcon({
-  categories,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  setCategories,
-  tasks,
-  setTasks,
-  index,
-  category,
-  flag
-}: EditIconProps): JSX.Element {
+function EditIcon({ index, category, flag }: EditIconProps): JSX.Element {
+  const [categories] = useCategoryContext();
+  const [tasks, setTasks] = useTaskContext();
   const foundTask = tasks.find((item) => item._id === index);
   const [currentTask, setCurrentTask] = useState<string>(foundTask ? foundTask.todonote : "");
   const [currentCategory, setCurrentCategory] = useState<category>(

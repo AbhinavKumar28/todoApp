@@ -1,13 +1,27 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import "../assets/styles/styles.css";
-import { useState } from "react";
+import { createContext, useContext, useState } from "react";
 import { useParams } from "react-router-dom";
-import type { Task, ComponentProps } from "../types/components.d.ts";
+import type { Task } from "../types/components.d.ts";
 import type { JSX } from "react";
 import componentsImports from "../constants/componentsImports.ts";
 import { useEffectToShowTasks, useSearchFunctionality } from "../hooks/useTasks.ts";
 import { useEffectToShowCategory } from "../hooks/useCategory.ts";
-function Id({ categories, setCategories, tasks, setTasks }: ComponentProps): JSX.Element {
+import { useCategoryContext, useTaskContext } from "../App/App.tsx";
+export const IdContext = createContext<string | undefined>(undefined);
+export function useIdContext(): string {
+  const context = useContext(IdContext);
+  if (context === undefined) {
+    throw new Error("useTaskContext must be used within TaskContext.Provider");
+  }
+  return context;
+}
+
+function Id(): JSX.Element {
+  const [categories, setCategories] = useCategoryContext();
+  const [tasks, setTasks] = useTaskContext();
   const { id } = useParams();
+
   const [searchInput, setSearchInput] = useState<string>("");
   const [filteredTasks, setFilteredTasks] = useState<Task[]>([]);
   // {
@@ -18,23 +32,15 @@ function Id({ categories, setCategories, tasks, setTasks }: ComponentProps): JSX
   useSearchFunctionality(tasks, searchInput, setFilteredTasks);
   return (
     <>
-      <componentsImports.Heading id={id} />
-      <componentsImports.TaskInputForm searchInput={searchInput} setSearchInput={setSearchInput} />
-      {id !== "shared-todos" && (
-        <componentsImports.AddNewNote
-          categories={categories}
-          tasks={tasks}
-          setTasks={setTasks}
-          id={id}
+      <IdContext.Provider value={id}>
+        <componentsImports.Heading />
+        <componentsImports.TaskInputForm
+          searchInput={searchInput}
+          setSearchInput={setSearchInput}
         />
-      )}
-      <componentsImports.BothTasks
-        categories={categories}
-        setCategories={setCategories}
-        tasks={filteredTasks}
-        setTasks={setTasks}
-        flag={id}
-      />
+        {id !== "shared-todos" && <componentsImports.AddNewNote />}
+        <componentsImports.BothTasks />
+      </IdContext.Provider>
       <componentsImports.BackImage />
     </>
   );

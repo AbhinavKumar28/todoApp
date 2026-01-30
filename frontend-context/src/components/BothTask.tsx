@@ -4,18 +4,16 @@ import images from "../constants/imagesImports.ts";
 import "../assets/images/trash-svgrepo-com-1.svg";
 import React from "react";
 import type { JSX } from "react";
-import type { Task, FlagComponentProps } from "../types/components.d.ts";
-function BothTasks({
-  categories,
-  setCategories,
-  tasks,
-  setTasks,
-  flag,
-}: FlagComponentProps): JSX.Element {
+import type { Task } from "../types/components.d.ts";
+import { useTaskContext } from "../App/App.tsx";
+import { useIdContext } from "../pages/Id.tsx";
+function BothTasks(): JSX.Element {
+  const [tasks, setTasks] = useTaskContext();
+  const flag = useIdContext();
   const removeTask = async (i: string): Promise<void> => {
     const removedTask: Task[] = tasks.filter((task: Task): boolean => task._id !== i);
     setTasks(removedTask);
-    const deletedTask: Task[] = tasks.filter((task: Task): boolean => task._id === i);
+    const deletedTask: Task[] | [] = tasks.filter((task: Task): boolean => task._id === i);
     const currentCategory = deletedTask[0]?.category;
     try {
       const a = localStorage.getItem("currentUser") ? localStorage.getItem("currentUser") : null;
@@ -41,15 +39,7 @@ function BothTasks({
             <input type="checkbox" className="noteCheckbox" name="" id="" />
             <span className="noteText">{td.todonote}</span>
             <span className="editDeleteContainer">
-              <componentsImports.EditIcon
-                categories={categories}
-                setCategories={setCategories}
-                tasks={tasks}
-                setTasks={setTasks}
-                index={td._id}
-                category={td.category}
-                flag={flag}
-              />
+              <componentsImports.EditIcon index={td._id} category={td.category} flag={flag} />
               <img
                 className="trashIcon"
                 aria-hidden
