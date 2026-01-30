@@ -1,0 +1,370 @@
+:root {
+  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+
+  color-scheme: light dark;
+  color: rgba(255, 255, 255, 0.87);
+  background-color: #242424;
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  --background-color: white;
+  --text-color:  black;
+  --border-color: #6c63ff;
+}
+
+[data-theme='light']{
+  --background-color: white;
+  --text-color: black;
+  --border-color: #6c63ff;
+}
+
+[data-theme='dark']{
+  --background-color: black;
+  --text-color: white;
+  --border-color: white;
+}
+
+a {
+  font-weight: 500;
+  color: #646cff;
+  text-decoration: inherit;
+}
+a:hover {
+  color: #535bf2;
+}
+
+body {
+  margin: 0;
+  display: flex;
+  place-items: center;
+  min-width: 320px;
+  min-height: 100vh;
+}
+
+.note:hover .optionsChild{
+	display:inline;
+}
+
+h1 {
+  font-size: 3.2em;
+  line-height: 1.1;
+}
+#alert{
+  font-size: 25px;
+  /* margin-left: 15px; */
+  	position: absolute;
+  	top: 50px;
+  	left: 115px;
+  	width: 520px;
+  	height: 45px;
+}
+button {
+  border-radius: 8px;
+  border: 1px solid transparent;
+  padding: 0.6em 1.2em;
+  font-size: 1em;
+  font-weight: 500;
+  font-family: inherit;
+  background-color: #1a1a1a;
+  cursor: pointer;
+  transition: border-color 0.25s;
+}
+button:hover {
+  border-color: #4393E4;
+}
+button:focus,
+button:focus-visible {
+  outline: 4px auto -webkit-focus-ring-color;
+}
+#root {
+  max-width: 1350px;
+  width: 30vw;
+  margin: 0 auto;
+  padding: 2rem;
+  text-align: center;
+  /* background: url(D:\Acadly\1stProject_May25\todoapp\src\assets\images\main-image.png);
+  background-repeat: no-repeat; */
+  /* background-size: cover; */
+  /* color: #4393E4; */
+}
+
+
+body{
+  background-color: var(--background-color);
+}
+@media (prefers-color-scheme: light) {
+  :root {
+    color: #213547;
+    background-color: #ffffff;
+  }
+  a:hover {
+    color: #747bff;
+  }
+  button {
+    background-color: #f9f9f9;
+  }
+}
+
+.addButtonIcon {
+/* width: 100%;
+max-width: 100%; */
+overflow: hidden;
+height: 50px;
+position: fixed;
+bottom: 40px;
+left: 1400px;
+}
+.buttonContainer {
+  display: flex;
+  padding: 1rem;
+  background-color: var(--background-color);
+}
+.modal {
+  padding: 10px;
+  background: var(--background-color);
+}
+.backImage{
+    /* height: 150px;
+    width: 150px; */
+    /* color: black; */
+width: 50px;
+max-width: 100%;
+overflow: hidden;
+height: 50px;
+/* width: 50px; */
+position: fixed;
+bottom: 40px;
+/* right: 5px; */
+right: 1140px;
+}
+.rightArrowButton{
+    margin: 15px; 
+	float: right;
+	text-align: center;
+}
+.categoryContainer{
+	margin-bottom: 30px;
+	border: 2px solid #6c63ff;
+	border-radius: 5px;
+}
+.categoryHeading{
+	font-size: 35px;
+	margin-left: 15px;
+}
+.list {
+  	position: absolute;
+  	top: 130px;
+  	left: 115px;
+  	width: 520px;
+  	height: 545px;
+}
+.popupHeadingContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center; 
+  width: 100%;          
+  text-align: center;   
+  background-color: var(--background-color);
+}
+.vectorIcon {
+  width: 21px;
+  	position: relative;
+  	height: 21px;
+}
+.content {
+  display: flex;
+  padding: 1rem;
+  background-color: var(--background-color);
+}
+.inputContainer {
+    border-radius: 5px;
+    border: 1px solid #6c63ff;
+    box-sizing: border-box;
+    height: 38px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 8px 16px;
+    gap: 436px;
+    margin-bottom: 30px;
+    background-color: var(--background-color);
+  }
+  .inputElement {
+      position: relative;
+      font-size: 20px;
+      font-weight: 500;
+      font-family: Inter;
+      color: gray;
+      text-align: left;
+    background-color: var(--background-color);
+    border: none;
+  }
+.addButton{
+    margin-left: auto;
+    color: white;
+    background-color: #6c63ff;
+	padding: 0.4em 1.2em;
+}
+.closeButton{
+  background-color: var(--background-color);
+  color: #6c63ff;
+  border: 1px solid #6c63ff ;
+  margin-right: 10px;
+}
+.editDeleteContainer {
+  	/* position: absolute;
+  	top: 4px;
+  	left: 463px; */
+  	/* display: flex;
+  	flex-direction: row; */
+  	align-items: center;
+  	/* justify-content: flex-end; */
+  	padding: 0px 8px;
+  	gap: 10px;
+	text-align: end;
+	/* margin-left: auto; */
+	
+  justify-content: flex-end;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+.trashIcon {
+  	width: 18px;
+  	/* position: relative; */
+  	height: 18px;
+  	/* overflow: hidden; */
+  	/* flex-shrink: 0; */
+	display: inline;
+}
+
+.noteDivider {
+  border: none;
+  border-top: 1px solid #6c63ff;
+  margin: 0.5rem 0 0 0;
+}
+.listContainer {
+  	position: absolute;
+  	top: 30px;
+  	left: 115px;
+  	width: 520px;
+  	height: 545px;
+}
+.body {
+  	width: 100%;
+  	position: relative;
+  	height: 575px;
+  	text-align: left;
+  	font-size: 20px;
+  	color: #252525;
+  	font-family: Kanit;
+}
+.noteText {
+  	/* position: absolute;
+  	top: 3px;
+  	left: calc(50% - 219.5px); */
+  	line-height: 100%;
+  	text-transform: uppercase;
+  	font-weight: 500;
+  	/* display: inline; */
+  	/* width: 42px; */
+	color: var(--text-color);
+	
+  flex-grow: 1;
+}
+.noteListContainer{
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+}
+.noteList {
+  	width: 525px;
+  	height: 26px;
+	display: flex;
+  justify-content: space-between; 
+  align-items: center; 
+  gap: 1rem; 
+  padding: 0.5rem; 
+    margin-bottom: 0.5rem;
+     /* list-style-type: none;
+  padding: 0;
+  margin: 0; */
+}
+.header {
+  	width: 100%;
+  	position: relative;
+  	display: flex;
+  	flex-direction: row;
+  	align-items: flex-start;
+  	justify-content: flex-start;
+  	gap: 16px;
+  	text-align: left;
+  	font-size: 16px;
+  	color: #c3c1e5;
+  	font-family: Inter;
+}
+
+.colorSchemeChild {
+  	position: absolute;
+  	top: 0px;
+  	left: 0px;
+  	border-radius: 5px;
+  	background-color: #6c63ff;
+  	width: 38px;
+  	height: 38px;
+}
+
+.darkModeToggle {
+  	position: absolute;
+  	height: 57.89%;
+  	width: 57.89%;
+  	top: 21.05%;
+  	right: 21.05%;
+  	bottom: 21.05%;
+  	left: 21.05%;
+  	max-width: 100%;
+  	overflow: hidden;
+  	max-height: 100%;
+}
+.colorScheme {
+  	width: 100%;
+  	position: relative;
+  	height: 38px;
+}
+.searchIcon {
+  	width: 21px;
+  	position: relative;
+  	height: 21px;
+}
+.noteCheckbox {
+  /* position: absolute;
+  top: 0px;
+  left: calc(50% - 262.5px); */
+  width: 26px;
+  height: 26px;
+  border-radius: 2px;
+  border: 1px solid #6c63ff;
+  background-color: var(--background-color);
+  appearance: none;
+  -webkit-appearance: none;
+  cursor: pointer;
+  display: inline;
+  outline: none;
+  position: relative;
+  margin: 3px;
+  margin-right: 0.5rem;
+}
+.newNoteHeading {
+  color: var(--text-color);
+  display: flex;
+  justify-content: center;
+  align-items: center; 
+  width: 100%;          
+  text-align: center;   
+  background-color: var(--background-color);
+}
